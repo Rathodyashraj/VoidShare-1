@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as net from 'net';
 import { AES256 } from '../encryption/aes';
+import * as crypto from 'crypto';
 import { RSAKeyExchange } from '../encryption/rsa';
 import { DigitalSignature } from '../encryption/signature';
 
