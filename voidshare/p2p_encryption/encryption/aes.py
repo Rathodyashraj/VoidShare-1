@@ -4,10 +4,10 @@ import os
 
 class AES256:
     def __init__(self, key: bytes):
-        self.key = key  # AES-256 key must be 32 bytes
+        self.key = key  # AES-256 - 32 bytes
 
     def encrypt(self, file_path: str, output_path: str):
-        iv = os.urandom(16)  # Generate IV for CBC mode
+        iv = os.urandom(16)  # Generating IV for CBC mode
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         
         with open(file_path, 'rb') as f:
@@ -16,11 +16,11 @@ class AES256:
         ciphertext = cipher.encrypt(pad(plaintext, AES.block_size))
 
         with open(output_path, 'wb') as f:
-            f.write(iv + ciphertext)  # Store IV in the file
+            f.write(iv + ciphertext)  # Storing IV in the file
 
     def decrypt(self, file_path: str, output_path: str):
         with open(file_path, 'rb') as f:
-            iv = f.read(16)  # Read IV
+            iv = f.read(16)  # Reading IV
             ciphertext = f.read()
         
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
