@@ -1,7 +1,12 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const redisClient = require('../config/redis');
 
 import { generateToken } from '../utils/jwtHelper';
+
+const setUserOnline = async (username) => {
+    await redisClient.set(`online:${username}`, 'true', 'EX', 2700); // Set user online with 45-min expiration
+};
 
 exports.registerUser = async (req, res) => {
     try {
@@ -13,7 +18,10 @@ exports.registerUser = async (req, res) => {
         }
 
         const user = await User.create({ username, password });
-        res.status(201).json({ token: generateToken(user._id) });
+
+        await setUserOnline(username);
+
+        res.status(201).json({ user,token: generateToken(user._id) });
 
     } catch (error) {
         res.status(500).json({ error: 'Error creating user' });
@@ -32,8 +40,8 @@ exports.loginUser = async (req, res) => {
         if (user.password !== password) {
             return res.status(401).json({ error: 'Wrong Password' });
         }
-
-        res.status(200).json({ token: generateToken(user._id) });
+        await setUserOnline(username);
+        res.status(200).json({ user,token: generateToken(user._id) });
     } catch (error) {
         res.status(500).json({ error: 'Login failed' });
     }
@@ -41,5 +49,6 @@ exports.loginUser = async (req, res) => {
 
 exports.getUserProfile = async (req, res) => {
     const user = await User.findById(req.user.id);
+    await setUserOnline(user.username);
     res.json(user);
 };
