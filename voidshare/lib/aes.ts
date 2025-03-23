@@ -30,16 +30,17 @@ export class AES256 {
     return new Uint8Array([...iv, ...new Uint8Array(encryptedData)]);
   }
 
-  async decryptFile(encryptedData: Uint8Array): Promise<Uint8Array> {
+  async decryptFile(encryptedData: Uint8Array): Promise<File> {
     const iv = encryptedData.slice(0, 16);
     const data = encryptedData.slice(16);
 
     const decryptedData = await crypto.subtle.decrypt(
       { name: "AES-CBC", iv },
-      this.key, // No need to re-import the key
+      this.key,
       data
     );
 
-    return new Uint8Array(decryptedData);
+    const fileBlob = new Blob([new Uint8Array(decryptedData)]);
+    return new File([fileBlob], "decrypted_file");
   }
 }
