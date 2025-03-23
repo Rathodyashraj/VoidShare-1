@@ -1,7 +1,9 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
-import { generateToken } from '../utils/jwtHelper';
+// import { generateToken } from '../utils/jwtHelper';
+const { generateToken } = require('../utils/jwtHelper');
+
 
 exports.registerUser = async (req, res) => {
     try {
