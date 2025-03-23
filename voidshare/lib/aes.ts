@@ -16,23 +16,37 @@ export class AES256 {
       ["encrypt", "decrypt"]
     );
   }
-
   async encryptFile(file: File): Promise<Uint8Array> {
     const iv = crypto.getRandomValues(new Uint8Array(16));
+    const mimeType = file.type; // Get the MIME type of the file
 
     const fileData = new Uint8Array(await file.arrayBuffer());
     const encryptedData = await crypto.subtle.encrypt(
       { name: "AES-CBC", iv },
-      this.key, // Now, this.key is already a CryptoKey
+      this.key,
       fileData
     );
 
-    return new Uint8Array([...iv, ...new Uint8Array(encryptedData)]);
+    // Prepend the MIME type length and MIME type to the encrypted data
+    const mimeTypeBytes = new TextEncoder().encode(mimeType);
+    const mimeTypeLength = new Uint8Array([mimeTypeBytes.length]);
+
+    return new Uint8Array([
+      ...mimeTypeLength,
+      ...mimeTypeBytes,
+      ...iv,
+      ...new Uint8Array(encryptedData),
+    ]);
   }
 
   async decryptFile(encryptedData: Uint8Array): Promise<File> {
-    const iv = encryptedData.slice(0, 16);
-    const data = encryptedData.slice(16);
+    // Extract the MIME type length and MIME type
+    const mimeTypeLength = encryptedData[0];
+    const mimeTypeBytes = encryptedData.slice(1, 1 + mimeTypeLength);
+    const mimeType = new TextDecoder().decode(mimeTypeBytes);
+
+    const iv = encryptedData.slice(1 + mimeTypeLength, 17 + mimeTypeLength);
+    const data = encryptedData.slice(17 + mimeTypeLength);
 
     const decryptedData = await crypto.subtle.decrypt(
       { name: "AES-CBC", iv },
@@ -40,7 +54,7 @@ export class AES256 {
       data
     );
 
-    const fileBlob = new Blob([new Uint8Array(decryptedData)]);
-    return new File([fileBlob], "decrypted_file");
+    const fileBlob = new Blob([new Uint8Array(decryptedData)], { type: mimeType });
+    return new File([fileBlob], "decrypted_file", { type: mimeType });
   }
 }
