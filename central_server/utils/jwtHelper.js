@@ -1,22 +1,38 @@
 const jwt = require('jsonwebtoken');
+const path = require('path');
+const dotenv = require('dotenv');
 
-exports.generateToken = (id) => {
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+
+const generateToken = (id) => {
+    if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET is not defined in the environment variables.");
+    }
+
+    console.log("jwt secret:", process.env.JWT_SECRET);
+    console.log("id:", id);
+
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '45m' });
+
 };
 
+// Generates a JSON Web Token and sets it as a cookie
+const generateTokenWithCookie = (userId, res) => {
+    if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET is not defined in the environment variables.");
+    }
 
-// token generation
+    const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
+    res.cookie("jwt", token, {
+        expires: new Date(Date.now() +  24 * 60 * 60 * 1000), // 1 days from now
+        httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
+        sameSite: "strict", // Prevents CSRF attacks
+        secure: process.env.NODE_ENV === "production", // Sends the cookie only over HTTPS in production
+    });
 
-// // Generates a json web token
-// export const generateToken = (userId, res) =>{
-//     const token = jwt.sign({userId},process.env.JWT_SECRET, { expiresIn : "7d"})
+    return token;
+};
 
-//     res.cookie("jwt",token,{
-//         expiresIn : 7 * 24 * 60 * 60, // 7 days in milliseconds
-//         httpOnly : true, // Prevents client-side JavaScript from accessing the cookie
-//         sameSite : true, // Prevents cross-site request forgery (CSRF) attacks
-//         secure : process.env.NODE_ENV !== "development", // Sends the cookie only over HTTPS in production
-//     })
-//     return token;
-// }
+module.exports = { generateToken, generateTokenWithCookie };
