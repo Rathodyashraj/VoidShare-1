@@ -1,4 +1,6 @@
-import { createClient } from 'redis';
+// import { createClient } from 'redis';
+
+const { createClient } = require('redis');
 
 const client = createClient({
   url: 'redis://localhost:6379', // Connect to local Redis server
@@ -18,4 +20,5 @@ const connectRedis = async () => {
 // Connect Redis when the server starts
 connectRedis();
 
-export default client;
+// export default client;
+module.exports = client;

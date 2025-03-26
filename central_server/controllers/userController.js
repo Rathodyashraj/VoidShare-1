@@ -1,8 +1,9 @@
-const User = require('../models/User');
+const User = require('../models/Users.js');
 const jwt = require('jsonwebtoken');
-const redisClient = require('../config/redis');
+const redisClient = require('../config/redis.js');
 
-import { generateToken } from '../utils/jwtHelper';
+// import { generateToken } from '../utils/jwtHelper';
+const generateToken = require('../utils/jwtHelper');
 
 const setUserOnline = async (username) => {
     await redisClient.set(`online:${username}`, 'true', 'EX', 2700); // Set user online with 45-min expiration
