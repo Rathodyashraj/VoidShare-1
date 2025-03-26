@@ -6,19 +6,17 @@ import { RSAKeyExchange } from '../lib/rsa';
 import { DigitalSignature } from '../lib/signature';
 
 export class PeerHandler {
-  private rsa: RSAKeyExchange;
-  public publicKey: string;
-  public privateKey: string;
-  private connection: any; // Placeholder for the connection object
-
-  constructor(private port: number = 5000, private host: string = 'localhost') {
+  constructor(port = 5000, host = 'localhost') {
+    this.port = port;
+    this.host = host;
     this.rsa = new RSAKeyExchange();
     const keys = this.rsa.exportKeys();
     this.publicKey = keys.publicKey;
     this.privateKey = keys.privateKey;
+    this.connection = null; // Placeholder for the connection object
   }
 
-  async sendFile(file: File, receiverPublicKey: string, onProgress: (progress: number) => void): Promise<void> {
+  async sendFile(file, receiverPublicKey, onProgress) {
     try {
       const sessionKey = crypto.randomBytes(32);
       const aes = new AES256(sessionKey);
@@ -59,11 +57,11 @@ export class PeerHandler {
     }
   }
 
-  async receiveFile(savePath: string): Promise<void> {
+  async receiveFile(savePath) {
     const server = net.createServer((socket) => {
       console.log('Waiting for incoming file...');
 
-      const chunks: Buffer[] = [];
+      const chunks = [];
 
       socket.on('data', (data) => chunks.push(data));
 
@@ -111,12 +109,12 @@ export class PeerHandler {
     });
   }
 
-  initiateConnection(isInitiator: boolean, config: any, signalCallback: (data: any) => void) {
+  initiateConnection(isInitiator, config, signalCallback) {
     this.connection = {}; // Replace with actual connection logic
     signalCallback({}); // Replace with actual signaling data
   }
 
-  signal(data: any) {
+  signal(data) {
     if (this.connection) {
       this.connection.signal(data);
     } else {
@@ -124,7 +122,7 @@ export class PeerHandler {
     }
   }
 
-  on(event: string, callback: (data: any) => void) {
+  on(event, callback) {
     if (this.connection) {
       this.connection.on(event, callback);
     } else {
@@ -132,7 +130,7 @@ export class PeerHandler {
     }
   }
 
-  onData(callback: (data: any) => void) {
+  onData(callback) {
     if (this.connection) {
       this.connection.on('data', callback);
     } else {
