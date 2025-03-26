@@ -4,8 +4,10 @@
 // User is mongodb database
 
 
-import jwt from "jsonwebtoken"
-import User from "../models/user.model.js"
+// import jwt from "jsonwebtoken"
+// import User from "../models/Users.js"
+const jwt = require('jsonwebtoken');
+const User = require('../models/Users.js');
 
 export const protectRoute= async(req,res,next)=>{
     try {
