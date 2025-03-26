@@ -1,8 +1,8 @@
-import * as fs from 'fs';
-import * as crypto from 'crypto';
+const fs = require('fs');
+const crypto = require('crypto');
 
-export class DigitalSignature {
-  static signFile(filePath: string, privateKey: string): Buffer {
+class DigitalSignature {
+  static signFile(filePath, privateKey) {
     const data = fs.readFileSync(filePath);
     const signer = crypto.createSign('SHA256');
     signer.update(data);
@@ -10,7 +10,7 @@ export class DigitalSignature {
     return signer.sign(privateKey);
   }
 
-  static verifySignature(filePath: string, signature: Buffer, publicKey: string): boolean {
+  static verifySignature(filePath, signature, publicKey) {
     const data = fs.readFileSync(filePath);
     const verifier = crypto.createVerify('SHA256');
     verifier.update(data);
@@ -18,3 +18,5 @@ export class DigitalSignature {
     return verifier.verify(publicKey, signature);
   }
 }
+
+module.exports = DigitalSignature;

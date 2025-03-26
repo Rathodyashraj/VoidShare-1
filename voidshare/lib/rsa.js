@@ -1,26 +1,26 @@
-import * as crypto from 'crypto';
+const crypto = require('crypto');
 
-export class RSAKeyExchange {
-  private keyPair: crypto.KeyPairKeyObjectResult;
-
+class RSAKeyExchange {
   constructor() {
     this.keyPair = crypto.generateKeyPairSync('rsa', {
       modulusLength: 2048,
     });
   }
 
-  exportKeys(): { publicKey: string; privateKey: string } {
+  exportKeys() {
     return {
       publicKey: this.keyPair.publicKey.export({ type: 'pkcs1', format: 'pem' }).toString(),
       privateKey: this.keyPair.privateKey.export({ type: 'pkcs1', format: 'pem' }).toString(),
     };
   }
 
-  encryptSessionKey(sessionKey: Buffer, peerPublicKey: string): Buffer {
+  encryptSessionKey(sessionKey, peerPublicKey) {
     return crypto.publicEncrypt(peerPublicKey, sessionKey);
   }
 
-  decryptSessionKey(encryptedKey: Buffer): Buffer {
+  decryptSessionKey(encryptedKey) {
     return crypto.privateDecrypt(this.keyPair.privateKey, encryptedKey);
   }
 }
+
+module.exports = RSAKeyExchange;
