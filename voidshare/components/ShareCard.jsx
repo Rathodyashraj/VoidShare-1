@@ -29,33 +29,33 @@ const ShareCard = () => {
     // checks if connection is active
     const [currentConnection, setcurrentConnection] = useState(false);
     // store webrtc peer ref
-    const peerRef = useRef<any>(null);
+    const peerRef = useRef(null);
     // current user id
-    const [userId, setuserId] = useState<any>();
+    const [userId, setuserId] = useState();
     // incoming webrtc signalling data
-    const [signalingData, setsignalingData] = useState<any>();
+    const [signalingData, setsignalingData] = useState();
     // incoming connection request
     const [acceptCaller, setacceptCaller] = useState(false);
     // whether to terminate call or not
     const [terminateCall, setterminateCall] = useState(false);
     // current file for upload
-    const [fileUpload, setfileUpload] = useState<any>();
+    const [fileUpload, setfileUpload] = useState();
     // file input field ref
-    const fileInputRef = useRef<any>(null);
+    const fileInputRef = useRef(null);
     // received file
-    const [downloadFile, setdownloadFile] = useState<any>();
+    const [downloadFile, setdownloadFile] = useState();
     // upload/download progress tracking
-    const [fileUploadProgress, setfileUploadProgress] = useState<number>(0);
-    const [fileDownloadProgress, setfileDownloadProgress] = useState<number>(0);
-    const [fileNameState, setfileNameState] = useState<any>();
+    const [fileUploadProgress, setfileUploadProgress] = useState(0);
+    const [fileDownloadProgress, setfileDownloadProgress] = useState(0);
+    const [fileNameState, setfileNameState] = useState();
     const [fileSending, setfileSending] = useState(false);
     const [fileReceiving, setfileReceiving] = useState(false);
-    const [name, setname] = useState<any>();
+    const [name, setname] = useState();
     const searchParams = useSearchParams();
-    const [totalFileSize, setTotalFileSize] = useState<number>(0);
+    const [totalFileSize, setTotalFileSize] = useState(0);
     // ref to a web worker
-    const workerRef = useRef<Worker>(null);
-    const peerInstance = useRef<PeerHandler | null>(null); // Ref to PeerHandler instance
+    const workerRef = useRef(null);
+    const peerInstance = useRef(null); // Ref to PeerHandler instance
 
     // function to connect the current user to the socket server
     const addUserToSocketDB = () => {
@@ -69,7 +69,7 @@ const ShareCard = () => {
     };
 
     // function to copy user id
-    function CopyToClipboard(value: any) {
+    function CopyToClipboard(value) {
         setisCopied(true);
         toast.success("Copied");
         navigator.clipboard.writeText(value);
@@ -93,14 +93,14 @@ const ShareCard = () => {
         }
 
         // incoming request listening
-        userDetails.socket.on("signaling", (data: any) => {
+        userDetails.socket.on("signaling", (data) => {
             setacceptCaller(true);
             setsignalingData(data);
             setpartnerId(data.from);
         });
 
         // listens for message from web worker about file download status
-        workerRef.current?.addEventListener("message", (event: any) => {
+        workerRef.current?.addEventListener("message", (event) => {
             if (event.data?.progress) {
                 // updating progress
                 setfileDownloadProgress(Number(event.data.progress));
@@ -158,7 +158,7 @@ const ShareCard = () => {
         });
 
         //receive accept signal via socket
-        userDetails.socket.on("callAccepted", (data: any) => {
+        userDetails.socket.on("callAccepted", (data) => {
             peer.signal(data.signalData);
             setisLoading(false);
             setcurrentConnection(true);
@@ -238,11 +238,11 @@ const ShareCard = () => {
         fileInputRef.current.click();
     };
 
-    const handleFileChange = (e: any) => {
+    const handleFileChange = (e) => {
         setfileUpload(e.target.files);
     };
 
-    async function handleReceivingData(data: any) {
+    async function handleReceivingData(data) {
         if (data.encryptedKey) {
             // Decrypt AES key using RSA private key
             const decryptedKey = userDetails.rsa.decryptSessionKey(Buffer.from(data.encryptedKey, "base64"));
@@ -278,7 +278,7 @@ const ShareCard = () => {
                 throw new Error("Peer connection or file is missing");
             }
 
-            peer.sendFile(file, userDetails.peerPublicKey, (progress: number) => {
+            peer.sendFile(file, userDetails.peerPublicKey, (progress) => {
                 setfileUploadProgress(progress);
                 if (progress === 100) {
                     setfileSending(false);
@@ -327,7 +327,7 @@ const ShareCard = () => {
                                     <Input
                                         id="name"
                                         placeholder="ID"
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setpartnerId(e.target.value)}
+                                        onChange={(e) => setpartnerId(e.target.value)}
                                         disabled={terminateCall}
                                         value={partnerId}
                                     />

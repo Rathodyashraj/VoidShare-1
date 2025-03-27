@@ -10,26 +10,19 @@ import React, {
 import { io } from "socket.io-client";
 import { Socket } from "socket.io-client/debug";
 
-const SocketContext = createContext<any>({});
+const SocketContext = createContext({});
 
 export const useSocket = () => {
-  const socket: {
-    socket: Socket;
-    userId: any;
-    SocketId: any;
-    setSocketId: any;
-    peerState: any;
-    setpeerState: any;
-  } = useContext(SocketContext);
+  const socket = useContext(SocketContext);
   return socket;
 };
 
-export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
+export const SocketProvider = ({ children }) => {
   const socket = useMemo(() => {
     return io(String(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL));
   }, []);
-  const [peerState, setpeerState] = useState<any>();
-  const [SocketId, setSocketId] = useState<any>(socket);
+  const [peerState, setpeerState] = useState();
+  const [SocketId, setSocketId] = useState(socket);
   const userId = useMemo(() => {
     return nanoid(10);
   }, []);

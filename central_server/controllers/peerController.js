@@ -1,5 +1,5 @@
-const User = require('../models/User');
-const redisClient = require('../config/redis');
+const User = require('../models/Users.js');
+const redisClient = require('../config/redis.js');
 
 // Utility function to reset user timeout using username
 const resetUserTimeout = async (username) => {
