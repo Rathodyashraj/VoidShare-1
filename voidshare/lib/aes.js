@@ -1,63 +1,48 @@
-import * as crypto from 'crypto';
-
 export class AES256 {
   constructor(key) {
-    this.importKey(key);
-  }
-
-  importKey(rawKey) {
-    return crypto.subtle.importKey(
-      "raw",
-      rawKey,
-      { name: "AES-CBC" },
-      false,
-      ["encrypt", "decrypt"]
-    ).then(key => {
       this.key = key;
-    });
   }
 
-  encryptFile(file) {
-    const iv = crypto.getRandomValues(new Uint8Array(16));
-    const mimeType = file.type; // Get the MIME type of the file
+  async encryptFile(file) {
+      const iv = crypto.getRandomValues(new Uint8Array(16));
+      const algorithm = { name: "AES-CBC", iv };
 
-    return file.arrayBuffer().then(buffer => {
-      const fileData = new Uint8Array(buffer);
-      return crypto.subtle.encrypt(
-        { name: "AES-CBC", iv },
-        this.key,
-        fileData
-      ).then(encryptedData => {
-        // Prepend the MIME type length and MIME type to the encrypted data
-        const mimeTypeBytes = new TextEncoder().encode(mimeType);
-        const mimeTypeLength = new Uint8Array([mimeTypeBytes.length]);
+      const cryptoKey = await crypto.subtle.importKey(
+          "raw",
+          this.key,
+          algorithm,
+          false,
+          ["encrypt"]
+      );
 
-        return new Uint8Array([
-          ...mimeTypeLength,
-          ...mimeTypeBytes,
-          ...iv,
-          ...new Uint8Array(encryptedData),
-        ]);
-      });
-    });
+      const fileData = await file.arrayBuffer();
+      const encryptedData = await crypto.subtle.encrypt(algorithm, cryptoKey, fileData);
+
+      const encryptedBlob = new Blob([iv, new Uint8Array(encryptedData)]);
+      return encryptedBlob;
   }
 
-  decryptFile(encryptedData) {
-    // Extract the MIME type length and MIME type
-    const mimeTypeLength = encryptedData[0];
-    const mimeTypeBytes = encryptedData.slice(1, 1 + mimeTypeLength);
-    const mimeType = new TextDecoder().decode(mimeTypeBytes);
+  async decryptFile(encryptedBlob) {
+      const data = await encryptedBlob.arrayBuffer();
+      const iv = new Uint8Array(data.slice(0, 16));
+      const encryptedData = data.slice(16);
 
-    const iv = encryptedData.slice(1 + mimeTypeLength, 17 + mimeTypeLength);
-    const data = encryptedData.slice(17 + mimeTypeLength);
+      const algorithm = { name: "AES-CBC", iv };
 
-    return crypto.subtle.decrypt(
-      { name: "AES-CBC", iv },
-      this.key,
-      data
-    ).then(decryptedData => {
-      const fileBlob = new Blob([new Uint8Array(decryptedData)], { type: mimeType });
-      return new File([fileBlob], "decrypted_file", { type: mimeType });
-    });
+      const cryptoKey = await crypto.subtle.importKey(
+          "raw",
+          this.key,
+          algorithm,
+          false,
+          ["decrypt"]
+      );
+
+      try {
+          const decryptedData = await crypto.subtle.decrypt(algorithm, cryptoKey, encryptedData);
+          return new Blob([decryptedData]);
+      } catch (error) {
+          alert("Decryption failed! Invalid key.");
+          return null;
+      }
   }
 }

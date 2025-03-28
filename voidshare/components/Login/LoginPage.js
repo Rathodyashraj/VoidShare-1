@@ -139,11 +139,7 @@
 
 // export default LoginPage;
 
-
-
 import { useState } from "react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import "./LoginPage.css";
 
 const LoginPage = () => {
@@ -151,50 +147,62 @@ const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit_login = (e) => {
+  const handleSubmit_login = async (e) => {
     e.preventDefault();
-    toast.success("✅ Login successful!", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
-    setUsername("");
-    setPassword("");
+    setError("");
+    setMessage("");
+
+    try {
+      const res = await fetch("http://localhost:7000/api/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Login failed.");
+      } else {
+        localStorage.setItem("token", data.token);
+        setMessage("Login successful!");
+      }
+    } catch (error) {
+      setError("Network error. Please try again.");
+    }
   };
 
-  const handleSubmit_signup = (e) => {
+  const handleSubmit_signup = async (e) => {
     e.preventDefault();
+    setError("");
+    setMessage("");
+
     if (password !== password2) {
-      toast.error("❌ Passwords do not match!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      setPassword("");
-      setPassword2("");
+      setError("Passwords do not match!");
       return;
     }
-    toast.success("🎉 Signup successful!", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
-    setUsername("");
-    setPassword("");
-    setPassword2("");
+
+    try {
+      const res = await fetch("http://localhost:7000/api/user/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Signup failed.");
+      } else {
+        setMessage("Signup successful! Please log in.");
+        setIsNewUser(false);
+      }
+    } catch (error) {
+      setError("Network error. Please try again.");
+    }
   };
 
   const handleSwitchMode = () => {
@@ -202,28 +210,21 @@ const LoginPage = () => {
     setUsername("");
     setPassword("");
     setPassword2("");
+    setError("");
+    setMessage("");
   };
 
   return (
     <div className="login-container">
+      {error && <p className="error">{error}</p>}
+      {message && <p className="message">{message}</p>}
+
       {!isNewUser ? (
         <>
           <h2>Login</h2>
           <form onSubmit={handleSubmit_login}>
-            <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
             <button type="submit">Login</button>
           </form>
           <p onClick={handleSwitchMode}>New user? Sign up</p>
@@ -232,27 +233,9 @@ const LoginPage = () => {
         <>
           <h2>Signup</h2>
           <form onSubmit={handleSubmit_signup}>
-            <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={password2}
-              onChange={(e) => setPassword2(e.target.value)}
-              required
-            />
+            <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <input type="password" placeholder="Confirm Password" value={password2} onChange={(e) => setPassword2(e.target.value)} required />
             <button type="submit">Sign Up</button>
           </form>
           <p onClick={handleSwitchMode}>Already have an account? Login</p>
