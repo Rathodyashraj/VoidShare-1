@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File and Key Encryption</title>
+    <link rel="stylesheet" href="ecc_style.css">
+    <script type="module" src="ency_decy_module.js"></script>
+    <script type="module" src="p2p.js"></script>
+</head>
+
+<body onload="initializeAES()">
+
+    <div class="container">
+        <h2>File and Key Encryption</h2>
+
+        <!-- Display User Peer ID -->
+        <h3>Your Peer ID</h3>
+        <p id="peerIdDisplay">Not Connected to server</p> <!-- This will display the Peer ID -->
+        <button id="copyPeerIdBtn" onclick="copyPeerId()">Copy Peer ID</button> <!-- Button to copy Peer ID -->
+        <p id="copyStatus" style="display:none;">Peer ID copied to clipboard!</p>
+        <!-- Status message for copying Peer ID -->
+
+        <!-- File Encryption Section -->
+        <h3>Encrypt and Decrypt Files</h3>
+        <input type="file" id="fileInput" class="file-input" />
+        <button onclick="encryptFile()">Encrypt File</button>
+        <!-- <button onclick="decryptFile()">Decrypt File</button> -->
+        <a id="downloadLink" class="download-link" style="display:none;">Download File</a>
+
+        <h3>Decrypt and Download File</h3>
+        <input type="file" id="fileInputdecy" class="file-input" />
+        <label for="manualAESKey">Paste AES Key (Base64):</label>
+        <input type="text" id="manualAESKey" placeholder="Enter AES key for decryption">
+        <button onclick="decryptFile()">Decrypt File</button>
+        <a id="downloadLinkdecy" class="download-link" style="display:none;">Download File</a>
+
+
+        <!-- AES Key Section -->
+        <h3>AES Key</h3>
+        <label for="aesKey">Generated AES Key:</label>
+        <input type="text" id="aesKey" readonly>
+
+        <!-- ECC Encryption Section -->
+        <button onclick="generateECCKeys()">Generate ECC Keys</button>
+
+        <div class="generatedkeys" style="display: none;">
+
+            <h3>Public Key (Base64):</h3>
+            <div class="key-block">
+                <input type="text" id="publicKeyField" readonly />
+                <button onclick="copyKey('publicKeyField')">Copy Public Key</button>
+            </div>
+
+            <h3>Private Key (Base64):</h3>
+            <div class="key-block">
+                <input type="text" id="privateKeyField" readonly />
+                <button onclick="copyKey('privateKeyField')">Copy Private Key</button>
+            </div>
+        </div>
+
+        <div>
+            <p class="generatedkeys">Generated keys:</p>
+        </div>
+        <h3>Encrypt AES Key with ECC</h3>
+        <label for="eccPublicKey">Enter Public Key:</label>
+        <input type="text" id="eccPublicKey" placeholder="Enter Public Key">
+        <button onclick="encryptAESKey()">Encrypt AES Key</button>
+        <label for="encryptedAES">Encrypted AES Key:</label>
+        <input type="text" id="encryptedAES" readonly>
+
+        <!-- ECC Decryption Section -->
+        <h3>Decrypt AES Key with ECC</h3>
+        <label for="encryptedAESInput">Enter Encrypted AES Key:</label>
+        <input type="text" id="encryptedAESInput" placeholder="Enter Encrypted AES Key">
+        <label for="eccPrivateKey">Enter Private Key:</label>
+        <input type="text" id="eccPrivateKey" placeholder="Enter Private Key">
+        <button onclick="decryptAESKey()">Decrypt AES Key</button>
+        <label for="decryptedAES">Decrypted AES Key:</label>
+        <input type="text" id="decryptedAES" readonly>
+
+        <h3>Peer-to-Peer File Transfer</h3>
+
+        <p>Share your Peer ID with a friend to connect.</p>
+        <button onclick="connectToSignalingServer()">Connect to Signaling Server</button>
+
+        <!-- Input for Friend's Peer ID -->
+        <h4>Enter Friend's Peer ID to Connect:</h4>
+        <input type="text" id="peerIdInput" placeholder="Enter Peer ID">
+        <button onclick="requestPeerConnection()">Connect</button>
+        <button onclick="disconnectPeer()">Disconnect</button>
+        <p id="statusMessage" class="status-message"></p>
+        <div id="customConfirm" class="modal" style="display:none;">
+            <div class="modal-content">
+                <p id="confirmMessage">Are you sure?</p>
+                <div class="modal-buttons">
+                    <button id="confirmYesBtn">Yes</button>
+                    <button id="confirmNoBtn">No</button>
+                </div>
+            </div>
+        </div>
+
+        <p class="rejectionstatus"></p>
+
+        <input type="file" id="fileInput_send" class="file-input sendinput" />
+        <button class="sendbtn" onclick="sendEncryptedFile()">Send Encrypted File</button>
+
+        <div>
+            <h4>Transfer Progress</h4>
+            <label>Sender Progress</label>
+            <progress id="senderProgressBar" value="0" max="100"></progress><br>
+
+            <label>Receiver Progress</label>
+            <progress id="receiverProgressBar" value="0" max="100"></progress><br>
+
+            <a id="receiverDownloadLink" style="display: none;">Download Received File</a>
+        </div>
+    </div>
+
+</body>
+<script src="ecc.js"></script>
+<script src="p2p.js"></script>
+
+</html>
