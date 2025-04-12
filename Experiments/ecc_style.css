@@ -1,0 +1,210 @@
+/* Make the body responsive and center content */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f9f9f9;
+    overflow-y: auto;
+}
+
+
+/* Container to center the content */
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+h2,
+h3,
+h4 {
+    margin-top: 1.5em;
+}
+
+input[type="text"],
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 8px 0;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.download-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+progress {
+    width: 100%;
+    height: 20px;
+    margin-bottom: 10px;
+}
+
+/* Link styling */
+a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Peer Selection Section */
+select {
+    padding: 10px;
+    font-size: 1em;
+}
+
+/* Spacer for sections */
+h4 {
+    margin-top: 20px;
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+
+    input[type="file"],
+    input[type="text"],
+    select,
+    button {
+        font-size: 0.9em;
+    }
+}
+
+/* Style for the Peer ID section */
+.peer-id-container {
+    display: flex;
+    align-items: center;
+    /* Aligns the text and input field vertically */
+    gap: 10px;
+    /* Adds space between the label and the input */
+    margin: 10px 0;
+    /* Adds space around the container */
+}
+
+#peerSelect {
+    width: 100%;
+    /* Makes the input field take up all available space */
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+p {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.sendbtn {
+    display: none;
+
+    &.connected {
+        display: block;
+    }
+}
+
+.generatedkeys {
+    display: none;
+
+    &.generated {
+        display: block;
+    }
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px 30px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: normal;
+}
+
+.modal-buttons {
+    margin-top: 20px;
+}
+
+.modal-buttons button {
+    margin: 0 10px;
+    padding: 6px 14px;
+    cursor: pointer;
+}
+
+.rejectionstatus{
+    display: none;
+    color: red;
+
+    &.rejected{
+        display: block;
+    }
+}
+
+.status-message {
+    margin-top: 10px;
+    color: #444;
+    background-color: #f0f0f0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    display: none;
+}
+
+.status-message.success {
+    color: green;
+    background-color: #e7fbe7;
+}
+
+.status-message.error {
+    color: red;
+    background-color: #ffe6e6;
+}
+
+.sendinput{
+    display: none;
+    
+    &.sendinputshow{
+        display: block;
+    }
+}
