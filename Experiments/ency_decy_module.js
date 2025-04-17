@@ -2,13 +2,18 @@ import { AES256 } from './aes.js';
 
 let aesInstance;
 let aesKey;
+window.encryptedBlob = null;
+window.encryptedFileName = '';
+
 
 // Generate a single AES key and initialize AES256 instance
+
 async function initializeAES() {
-    aesKey = crypto.getRandomValues(new Uint8Array(32)); // 256-bit key
-    aesInstance = new AES256(aesKey);
-    document.getElementById("aesKey").value = btoa(String.fromCharCode(...aesKey));
+    window.aesKey = crypto.getRandomValues(new Uint8Array(32)); // 256-bit key
+    window.aesInstance = new AES256(window.aesKey); // Save aesInstance globally too if needed
+    document.getElementById("aesKey").value = btoa(String.fromCharCode(...window.aesKey));
 }
+
 
 // Encrypt a file using the shared AES key
 async function encryptFile() {
@@ -16,52 +21,46 @@ async function encryptFile() {
     if (!fileInput.files.length) return alert("Select a file first");
 
     const file = fileInput.files[0];
-    const aes = aesInstance;
+    const encryptedData = await window.aesInstance.encryptFile(file);
 
-    const encryptedData = await aes.encryptFile(file);
+    // Store encrypted data globally
+    window.encryptedBlob = new Blob([encryptedData]);
+    window.encryptedFileName = 'encrypted_' + file.name;
 
-    const blob = new Blob([encryptedData]);
-    const url = URL.createObjectURL(blob);
-
+    // Create download link
+    const url = URL.createObjectURL(window.encryptedBlob);
     const downloadLink = document.getElementById('downloadLink');
     downloadLink.href = url;
-    downloadLink.download = 'encrypted_' + file.name;
+    downloadLink.download = window.encryptedFileName;
     downloadLink.style.display = 'block';
     downloadLink.innerText = 'Download Encrypted File';
 }
 
+
 // Decrypt a file using the shared AES key
 // Decrypt a file using a manually provided AES key
 async function decryptFile() {
-    const fileInput = document.getElementById('fileInputdecy');
-    if (!fileInput.files.length) return alert("Select an encrypted file first");
+    const encryptedBlob = window.receivedEncryptedBlob;
+    const fileName = window.receivedFileName;
 
-    const userKeyBase64 = document.getElementById("manualAESKey").value;
-    if (!userKeyBase64) return alert("Please paste the AES key!");
+    if (!encryptedBlob) return alert("No received file to decrypt!");
+    if (!window.sharedAESKey) return alert("AES key not received!");
 
-    const aesKeyBytes = new Uint8Array(atob(userKeyBase64).split('').map(c => c.charCodeAt(0)));
-    const aes = new AES256(aesKeyBytes); // Use provided key
+    const aesKeyBytes = new Uint8Array(atob(window.sharedAESKey).split('').map(c => c.charCodeAt(0)));
+    const aes = new AES256(aesKeyBytes);
 
-    const file = fileInput.files[0];
-    const reader = new FileReader();
+    const decryptedBlob = await aes.decryptFile(encryptedBlob);
 
-    reader.onload = async function (event) {
-        const encryptedData = new Uint8Array(event.target.result);
-        const encryptedBlob = new Blob([encryptedData]);
-        const decryptedBlob = await aes.decryptFile(encryptedBlob);
-
-        if (decryptedBlob) {
-            const url = URL.createObjectURL(decryptedBlob);
-
-            const downloadLink = document.getElementById('downloadLinkdecy');
-            downloadLink.href = url;
-            downloadLink.download = 'decrypted_' + file.name.replace('encrypted_', '');
-            downloadLink.innerText = 'Download Decrypted File';
-            downloadLink.style.display = 'block';
-        }
-    };
-    reader.readAsArrayBuffer(file);
+    if (decryptedBlob) {
+        const url = URL.createObjectURL(decryptedBlob);
+        const downloadLink = document.getElementById('downloadLinkdecy');
+        downloadLink.href = url;
+        downloadLink.download = 'decrypted_' + fileName.replace('encrypted_', '');
+        downloadLink.innerText = 'Download Decrypted File';
+        downloadLink.style.display = 'block';
+    }
 }
+
 
 
 // Encrypt the AES key using ECC

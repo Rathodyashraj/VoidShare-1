@@ -1,8 +1,10 @@
 const SIGNAL_SERVER = 'ws://localhost:8080';
 const CHUNK_SIZE = 64 * 1024; // 64KB per chunk
 
-let peerId = Math.random().toString(36).substr(2, 6); // Generate Peer ID dynamically
+let peerId = ""; // Generate Peer ID dynamically
 let socket, peerConnection, dataChannel;
+window.receivedEncryptedBlob=null;
+window.receivedFileName='';
 
 let pendingFile = null;
 
@@ -36,6 +38,7 @@ function showCustomConfirm(message) {
 }
 
 async function connectToSignalingServer() {
+    peerId = Math.random().toString(36).substr(2, 6);
     socket = new WebSocket(SIGNAL_SERVER);
 
     socket.onopen = () => {
@@ -65,7 +68,10 @@ async function connectToSignalingServer() {
                         if (accept) {
                             await createWebRTCConnection(false, data.from);
                             document.getElementsByClassName('sendbtn')[0].classList.toggle('connected');
-                            document.getElementsByClassName('sendinput')[0].classList.toggle('sendinputshow');
+                            // document.getElementsByClassName('sendinput')[0].classList.toggle('sendinputshow');
+                            document.getElementById("encryptionSection").style.display = "block";
+                            document.getElementById("fileInput_send").style.display = "block";
+                            document.querySelector(".sendbtn").style.display = "inline-block";
                         }
                     });
                 break;
@@ -80,7 +86,10 @@ async function connectToSignalingServer() {
                         document.getElementsByClassName('rejectionstatus')[0].classList.toggle('rejected');
                     }, 2000);
                     document.getElementsByClassName('sendbtn')[0].classList.toggle('connected');
-                    document.getElementsByClassName('sendinput')[0].classList.toggle('sendinputshow');
+                    // document.getElementsByClassName('sendinput')[0].classList.toggle('sendinputshow');
+                    document.getElementById("encryptionSection").style.display = "block";
+                    document.getElementById("fileInput_send").style.display = "block";
+                    document.querySelector(".sendbtn").style.display = "inline-block";
                 } else {
                     // alert(`Peer ${data.from} rejected your connection request.`);
                     document.getElementsByClassName('rejectionstatus')[0].style.color = "red";
@@ -184,16 +193,23 @@ async function handleSignal(from, signal) {
 }
 
 async function sendEncryptedFile() {
-    const fileInput = document.getElementById('fileInput_send');
-    if (!fileInput.files.length) return alert("Select a file first");
-    const file = fileInput.files[0];
+    if (!window.encryptedBlob) return alert("Please encrypt a file first");
+
     const reader = new FileReader();
     reader.onload = async function () {
         const buffer = new Uint8Array(reader.result);
         let offset = 0;
         const totalChunks = Math.ceil(buffer.length / CHUNK_SIZE);
 
-        dataChannel.send(JSON.stringify({ filename: file.name, totalChunks }));
+        // Send AES key (in base64)
+        const aesKeyBase64 = btoa(String.fromCharCode(...window.aesKey));
+        dataChannel.send(JSON.stringify({ aesKey: aesKeyBase64 }));
+
+        // Send file metadata
+        dataChannel.send(JSON.stringify({
+            filename: window.encryptedFileName,
+            totalChunks
+        }));
 
         while (offset < buffer.length) {
             const chunk = buffer.slice(offset, offset + CHUNK_SIZE);
@@ -202,11 +218,14 @@ async function sendEncryptedFile() {
 
             const percent = Math.floor((offset / buffer.length) * 100);
             document.getElementById('senderProgressBar').value = percent;
-            await new Promise(r => setTimeout(r, 10)); // slight delay to avoid congestion
+            await new Promise(r => setTimeout(r, 10)); // avoid congestion
         }
     };
-    reader.readAsArrayBuffer(new Blob([file]));
+
+    reader.readAsArrayBuffer(window.encryptedBlob);
 }
+
+
 
 let incomingChunks = [];
 let expectedChunks = 0;
@@ -218,9 +237,21 @@ function setupDataChannel() {
     dataChannel.onmessage = async (event) => {
         if (typeof event.data === 'string') {
             const meta = JSON.parse(event.data);
-            expectedChunks = meta.totalChunks;
-            fileName = meta.filename;
-            incomingChunks = [];
+
+            // AES key
+            if (meta.aesKey) {
+                window.sharedAESKey = meta.aesKey;
+                document.getElementById("manualAESKey").value = meta.aesKey;
+                console.log("AES key received and filled into decrypt input.");
+            }
+
+            // File metadata
+            if (meta.totalChunks && meta.filename) {
+                expectedChunks = meta.totalChunks;
+                fileName = meta.filename;
+                incomingChunks = [];
+                return;
+            }
         } else {
             incomingChunks.push(new Uint8Array(event.data));
             const percent = Math.floor((incomingChunks.length / expectedChunks) * 100);
@@ -228,16 +259,26 @@ function setupDataChannel() {
 
             if (incomingChunks.length === expectedChunks) {
                 const encryptedBlob = new Blob(incomingChunks);
+
+                // Store globally for decryption
+                window.receivedEncryptedBlob = encryptedBlob;
+                window.receivedFileName = fileName;
+
+                // Optional: provide download link
                 const url = URL.createObjectURL(encryptedBlob);
                 const downloadLink = document.getElementById('receiverDownloadLink');
                 downloadLink.href = url;
                 downloadLink.download = 'received_' + fileName;
                 downloadLink.style.display = 'block';
                 downloadLink.innerText = 'Download Received File';
+
+                document.getElementsByClassName('file-receive')[0].classList.toggle('file-receive-show');
             }
         }
     };
 }
+
+
 
 // Function to copy the Peer ID to clipboard
 function copyPeerId() {
