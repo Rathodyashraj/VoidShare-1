@@ -1,210 +1,254 @@
-/* Make the body responsive and center content */
+/* GLOBAL STYLES */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #0d0d0d;
+    color: #f5f5f5;
     margin: 0;
-    padding: 20px;
-    background: #f9f9f9;
-    overflow-y: auto;
-}
-
-
-/* Container to center the content */
-.container {
-    max-width: 800px;
-    margin: auto;
-    background: #fff;
     padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    line-height: 1.6;
 }
 
-h2,
-h3,
-h4 {
-    margin-top: 1.5em;
-}
-
-input[type="text"],
-input[type="file"] {
-    width: 100%;
-    padding: 10px;
-    margin-top: 6px;
-    margin-bottom: 16px;
-    box-sizing: border-box;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-}
-
-button {
-    padding: 10px 20px;
-    margin: 8px 0;
-    background-color: #007bff;
+/* HEADER */
+header {
+    background: linear-gradient(90deg, #3b82f6, #2563eb);
     color: white;
+    padding: 20px 0;
+    text-align: center;
+    border-radius: 8px;
+    margin-bottom: 40px;
+}
+
+.header-container h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.header-container p {
+    font-size: 1.1rem;
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+/* CONTAINER */
+.container {
+    max-width: 960px;
+    margin: auto;
+    padding: 40px;
+    background: #1a1a1a;
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* HEADINGS */
+h2, h3, h4 {
+    border-left: 5px solid #3b82f6;
+    padding-left: 16px;
+    color: #ffffff;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    animation: fadeInLeft 0.5s ease;
+}
+
+/* INPUTS */
+input[type="text"],
+input[type="file"],
+select {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    background: #252525;
+    color: #e0e0e0;
     border: none;
-    border-radius: 6px;
+    margin-bottom: 16px;
+    transition: 0.3s ease;
+    font-size: 1rem;
+}
+
+input::placeholder {
+    color: #aaa;
+}
+
+input:focus {
+    outline: none;
+    background-color: #333;
+    box-shadow: 0 0 0 2px #3b82f6;
+}
+
+/* BUTTONS */
+button {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 12px;
+    background-color: #3b82f6;
+    color: white;
+    font-weight: 600;
     cursor: pointer;
+    margin: 8px 8px 16px 0;
+    transition: 0.25s ease;
+    font-size: 1rem;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #2563eb;
+    transform: translateY(-2px);
 }
 
-.download-link {
+/* DOWNLOAD LINKS */
+a.download-link {
+    color: #60a5fa;
+    text-decoration: underline;
     display: inline-block;
     margin-top: 10px;
-    color: #007bff;
-    text-decoration: underline;
-    cursor: pointer;
+    transition: color 0.2s ease;
 }
 
+a.download-link:hover {
+    color: #93c5fd;
+}
+
+/* PROGRESS BARS */
 progress {
     width: 100%;
     height: 20px;
-    margin-bottom: 10px;
+    border-radius: 10px;
+    appearance: none;
+    background-color: #2a2a2a;
 }
 
-/* Link styling */
-a {
-    text-decoration: none;
-    color: #007bff;
+progress::-webkit-progress-bar {
+    background-color: #2a2a2a;
+    border-radius: 10px;
 }
 
-a:hover {
-    text-decoration: underline;
+progress::-webkit-progress-value {
+    background-color: #3b82f6;
+    border-radius: 10px;
 }
 
-/* Peer Selection Section */
-select {
-    padding: 10px;
-    font-size: 1em;
+progress::-moz-progress-bar {
+    background-color: #3b82f6;
+    border-radius: 10px;
 }
 
-/* Spacer for sections */
-h4 {
-    margin-top: 20px;
-    text-align: center;
-}
-
-/* Responsive Design */
-@media (max-width: 600px) {
-    .container {
-        padding: 10px;
-    }
-
-    input[type="file"],
-    input[type="text"],
-    select,
-    button {
-        font-size: 0.9em;
-    }
-}
-
-/* Style for the Peer ID section */
-.peer-id-container {
-    display: flex;
-    align-items: center;
-    /* Aligns the text and input field vertically */
-    gap: 10px;
-    /* Adds space between the label and the input */
-    margin: 10px 0;
-    /* Adds space around the container */
-}
-
-#peerSelect {
-    width: 100%;
-    /* Makes the input field take up all available space */
-    padding: 10px;
-    font-size: 1em;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-}
-
-p {
-    margin: 0;
-    font-size: 1.1em;
-    font-weight: bold;
-}
-
-.sendbtn {
-    display: none;
-
-    &.connected {
-        display: block;
-    }
-}
-
-.generatedkeys {
-    display: none;
-
-    &.generated {
-        display: block;
-    }
-}
-
+/* MODAL */
 .modal {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.75);
     display: flex;
-    align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
+    align-items: center;
+    z-index: 999;
+    animation: fadeIn 0.4s ease-in-out;
 }
 
 .modal-content {
-    background: white;
-    padding: 20px 30px;
-    border-radius: 8px;
+    background: #222;
+    padding: 30px;
+    border-radius: 16px;
     text-align: center;
-    font-weight: normal;
-}
-
-.modal-buttons {
-    margin-top: 20px;
+    width: 90%;
+    max-width: 400px;
+    animation: slideUp 0.5s ease;
 }
 
 .modal-buttons button {
-    margin: 0 10px;
-    padding: 6px 14px;
-    cursor: pointer;
+    background-color: #10b981;
+    margin: 0 8px;
 }
 
-.rejectionstatus{
-    display: none;
-    color: red;
-
-    &.rejected{
-        display: block;
-    }
+.modal-buttons button:hover {
+    background-color: #059669;
 }
 
+/* STATUS MESSAGE */
 .status-message {
-    margin-top: 10px;
-    color: #444;
-    background-color: #f0f0f0;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    display: none;
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 10px;
+    background-color: #252525;
+    font-size: 15px;
+    border-left: 4px solid #444;
 }
 
 .status-message.success {
-    color: green;
-    background-color: #e7fbe7;
+    color: #22c55e;
+    background-color: #1f2937;
+    border-color: #22c55e;
 }
 
 .status-message.error {
-    color: red;
-    background-color: #ffe6e6;
+    color: #ef4444;
+    background-color: #1f2937;
+    border-color: #ef4444;
 }
 
-.sendinput{
-    display: none;
-    
-    &.sendinputshow{
-        display: block;
+/* SECTION BREAKS */
+section {
+    margin-bottom: 48px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+/* ENCRYPTION SECTION */
+#encryptionSection {
+    padding: 30px;
+    margin-top: 24px;
+    background-color: #111;
+    border-radius: 16px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+#encryptionSection input,
+#encryptionSection button,
+#encryptionSection a.download-link {
+    margin-top: 14px;
+    width: 100%;
+    max-width: 420px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
     }
+
+    button,
+    input,
+    select {
+        font-size: 0.95em;
+    }
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-15px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* VISIBILITY UTILITIES */
+.sendbtn, .sendinput, .file-receive, .generatedkeys, .rejectionstatus {
+    display: none;
+}
+
+.sendbtn.connected,
+.sendinput.sendinputshow,
+.file-receive.file-receive-show,
+.generatedkeys.generated,
+.rejectionstatus.rejected {
+    display: block;
 }
